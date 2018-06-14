@@ -21,9 +21,28 @@ class ShowPostTest extends TestCase
 
         $user->posts()->save($post);
 
-        $this->visit(route('posts.show', $post)) // route: posts/213451
+        $this->visit($post->url) // route: posts/213451
              ->seeInElement('h1', $post->title)
              ->see($post->content)
              ->see($user->name);
     }
+
+    function test_old_urls_are_redirected(){
+        $user = $this->defaultUser();
+
+        $post = factory(\App\Post::class)->make([
+            'title' => 'Old title'
+        ]);
+
+        $user->posts()->save($post);
+
+        $url  = $post->url;
+
+        $post->update(['title' => 'New title']);
+
+        $this->visit($url)
+            ->seePageIs($post->url);
+    }
+
+
 }
